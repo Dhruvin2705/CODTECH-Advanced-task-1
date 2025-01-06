@@ -1,8 +1,11 @@
 # CODTECH-Advanced-task-1
 
 **Name :** Sangani Dhruvin
+
 **college :** Silver oak university
+
 **Task :** File integrity checker
+
 **Intern ID :** CT08DAV
 
 
