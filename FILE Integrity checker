@@ -1,0 +1,55 @@
+import hashlib
+import os
+import time
+
+# Define the directory to monitor
+MONITOR_DIR = 'path/to/your/directory'
+
+# Define the hash algorithm (SHA256 is preferred over MD5 for better security)
+HASH_ALGORITHM = 'sha256'
+
+# Function to calculate the hash of a file
+def calculate_file_hash(file_path, hash_algo=HASH_ALGORITHM):
+    hash_func = hashlib.new(hash_algo)
+    with open(file_path, 'rb') as file:
+        while chunk := file.read(8192):  # Read file in chunks
+            hash_func.update(chunk)
+    return hash_func.hexdigest()
+
+# Function to get the current state of all files in the directory
+def get_files_hashes(directory):
+    file_hashes = {}
+    for filename in os.listdir(directory):
+        file_path = os.path.join(directory, filename)
+        if os.path.isfile(file_path):
+            file_hashes[filename] = calculate_file_hash(file_path)
+    return file_hashes
+
+# Function to monitor the directory for changes
+def monitor_directory(directory, sleep_time=10):
+    print(f"Monitoring directory: {directory}")
+    
+    # Store initial hashes of the files
+    previous_hashes = get_files_hashes(directory)
+    
+    while True:
+        time.sleep(sleep_time)  # Wait for the specified interval
+        current_hashes = get_files_hashes(directory)
+        
+        # Check for any changes in the files
+        for filename, current_hash in current_hashes.items():
+            if filename not in previous_hashes:
+                print(f"New file detected: {filename}")
+            elif current_hash != previous_hashes[filename]:
+                print(f"File modified: {filename}")
+        
+        for filename in previous_hashes:
+            if filename not in current_hashes:
+                print(f"File deleted: {filename}")
+        
+        # Update the previous hashes for the next comparison
+        previous_hashes = current_hashes
+
+# Start monitoring the directory (you can change this path)
+if __name__ == "__main__":
+    monitor_directory(MONITOR_DIR)
